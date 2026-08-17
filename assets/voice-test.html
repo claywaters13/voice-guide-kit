@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Blind Preference Test</title>
+<style>
+:root{
+  --bg:#f7f6f3; --card:#ffffff; --ink:#1f2937; --muted:#6b7280; --line:#e5e1d8;
+  --accent:#2563eb; --accent-soft:#eef3fd; --good:#15803d; --warn:#b45309;
+  --code-bg:#f3f1ec;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#111418; --card:#1b2026; --ink:#e7e9ec; --muted:#9aa3ad; --line:#2c333b;
+    --accent:#7aa2f7; --accent-soft:#1c2430; --good:#4ade80; --warn:#fbbf24;
+    --code-bg:#151a20;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}
+.wrap{max-width:860px;margin:0 auto;padding:40px 20px 80px;}
+h1{font-size:1.6rem;margin:0 0 8px;letter-spacing:-.02em;}
+.sub{color:var(--muted);margin:0 0 24px;font-size:.98rem;}
+.rules{background:var(--accent-soft);border:1px solid var(--line);border-left:3px solid var(--accent);
+  border-radius:8px;padding:14px 18px;margin:0 0 22px;font-size:.93rem;}
+.rules b{color:var(--accent);}
+.rules ul{margin:8px 0 0;padding-left:1.25em;} .rules li{margin:.25em 0;}
+#tool{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px;}
+textarea{width:100%;background:var(--bg);color:var(--ink);border:1px solid var(--line);
+  border-radius:8px;padding:10px;font:inherit;font-size:.9rem;min-height:56px;resize:vertical;}
+textarea.mono{font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;min-height:150px;}
+button.go{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:10px 18px;font:inherit;cursor:pointer;}
+button.go:disabled{opacity:.4;cursor:default;}
+button.ghost{background:transparent;color:var(--muted);border:1px solid var(--line);
+  border-radius:8px;padding:10px 16px;font:inherit;cursor:pointer;}
+button.ghost:hover{color:var(--accent);border-color:var(--accent);}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0;}
+@media(max-width:700px){.pair{grid-template-columns:1fr;}}
+.ver{border:1.5px solid var(--line);border-radius:10px;padding:14px;background:var(--bg);}
+.ver h5{margin:0 0 8px;font-size:.85rem;color:var(--accent);text-transform:uppercase;letter-spacing:.05em;}
+.vbody{font-size:.9rem;} .vbody p{margin:0 0 .75em;} .vbody p:last-child{margin-bottom:0;}
+.vbody ul{margin:.2em 0 .7em;padding-left:1.3em;} .vbody li{margin:.2em 0;}
+.prefrow{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 4px;}
+.pref{background:var(--bg);border:1.5px solid var(--line);border-radius:8px;color:var(--ink);
+  padding:9px 13px;font:inherit;font-size:.87rem;cursor:pointer;}
+.pref.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);color:var(--accent);font-weight:600;}
+.progress{color:var(--muted);font-size:.88rem;margin-bottom:8px;}
+.meta{color:var(--muted);font-size:.9rem;margin-bottom:12px;}
+.result-item{border-top:1px solid var(--line);padding:12px 0;font-size:.92rem;}
+.own{color:var(--warn);font-weight:600;} .draft{color:var(--good);font-weight:600;} .tie{color:var(--muted);font-weight:600;}
+.score{font-size:1.1rem;margin:6px 0 14px;}
+.err{color:var(--warn);font-size:.9rem;margin-top:10px;}
+.hint{color:var(--muted);font-size:.85rem;margin:6px 0 0;}
+pre{background:var(--code-bg);border:1px solid var(--line);border-radius:8px;padding:12px 14px;
+  overflow-x:auto;font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;margin:10px 0 0;white-space:pre-wrap;}
+details{margin-top:14px;font-size:.9rem;} summary{cursor:pointer;color:var(--accent);}
+</style></head><body><div class="wrap">
+
+<h1>Blind Preference Test</h1>
+<p class="sub">Part of the Voice Guide Kit. Everything runs in this page. Nothing you paste is uploaded or stored anywhere.</p>
+
+<div class="rules">
+<b>Two rules make this test work.</b>
+<ul>
+  <li><b>You are not spotting the AI.</b> Pick the version you would rather have sent. Whether something reads as AI matters far less than whether it is better.</li>
+  <li><b>Say why, every time.</b> Quote the sentence, say what is wrong with it or what the better one got right, and give the fix if you have one. The score tells you where you stand. The comments are the only thing you can build the next guide out of.</li>
+</ul>
+</div>
+
+<div id="tool"><div id="stage"></div></div>
+
+<details>
+<summary>Input format</summary>
+<pre>[
+  {
+    "id": 1,
+    "label": "Short description of the situation",
+    "reader": "Who it is addressed to",
+    "mine": "The full text of the piece you actually wrote",
+    "draft": "The full text of the AI version, from the brief and the guide"
+  }
+]</pre>
+<p class="hint">Plain text in "mine" and "draft", with real line breaks. Start a line with "- " for a bullet. This page shuffles which side is A and which is B for every pair, so neither you nor your assistant can leak the answer key.</p>
+</details>
+
+</div>
+<script>
+const PREFS=[["A2","A, clearly better"],["A1","A, slightly"],["T","Toss-up"],["B1","B, slightly"],["B2","B, clearly better"]];
+const stage=document.getElementById('stage');
+let ITEMS=[], idx=0, answers=[], choice=null;
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function renderText(text){
+  const lines=String(text).split('\n'); let html=''; let para=[]; let inList=false;
+  const flush=()=>{ if(para.length){ html+='<p>'+para.map(esc).join('<br>')+'</p>'; para=[]; } };
+  const closeList=()=>{ if(inList){ html+='</ul>'; inList=false; } };
+  for(const raw of lines){
+    const m=raw.match(/^\s*([-*]|\d+[.)])\s+(.*)$/);
+    if(m){
+      flush();
+      if(!inList){ html+='<ul>'; inList=true; }
+      html+='<li>'+esc(m[2])+'</li>';
+    } else if(raw.trim()===''){ flush(); closeList(); }
+    else { closeList(); para.push(raw.trim()); }
+  }
+  flush(); closeList();
+  return html;
+}
+
+function loader(msg){
+  stage.innerHTML=`
+    <h3 style="margin-top:0">Load your pairs</h3>
+    <p class="hint" style="margin-bottom:10px">Paste the JSON array your assistant produced, then start.</p>
+    <textarea class="mono" id="src" placeholder='[{"id":1,"label":"Follow-up after a first call","reader":"Hiring manager, met once","mine":"...","draft":"..."}]'></textarea>
+    <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="go" onclick="load()">Start the test</button>
+    </div>
+    ${msg?`<div class="err">${esc(msg)}</div>`:''}`;
+}
+
+function load(){
+  let data;
+  try{ data=JSON.parse(document.getElementById('src').value); }
+  catch(e){ return loader('That is not valid JSON. '+e.message); }
+  if(!Array.isArray(data)||!data.length) return loader('Expected a non-empty JSON array of pair objects.');
+  for(const [i,d] of data.entries()){
+    if(!d||typeof d.mine!=='string'||typeof d.draft!=='string'||!d.mine.trim()||!d.draft.trim())
+      return loader(`Pair ${i+1} is missing a non-empty "mine" or "draft" field.`);
+  }
+  ITEMS=data.map((d,i)=>{
+    const mineIsA=Math.random()<0.5;
+    return {
+      id:d.id??(i+1),
+      label:d.label||`Pair ${i+1}`,
+      reader:d.reader||'',
+      a:mineIsA?d.mine:d.draft,
+      b:mineIsA?d.draft:d.mine,
+      real:mineIsA?'A':'B'
+    };
+  });
+  idx=0; answers=[]; renderItem();
+}
+
+function renderItem(){
+  const it=ITEMS[idx]; choice=null;
+  stage.innerHTML=`
+    <div class="progress">Pair ${idx+1} of ${ITEMS.length}</div>
+    <div class="meta"><b>${esc(it.label)}</b>${it.reader?' &nbsp;&middot;&nbsp; To: '+esc(it.reader):''}</div>
+    <div class="pair">
+      <div class="ver"><h5>Version A</h5><div class="vbody">${renderText(it.a)}</div></div>
+      <div class="ver"><h5>Version B</h5><div class="vbody">${renderText(it.b)}</div></div>
+    </div>
+    <div class="prefrow">${PREFS.map(p=>`<button class="pref" id="p${p[0]}" onclick="pick('${p[0]}')">${p[1]}</button>`).join('')}</div>
+    <p style="margin:14px 0 6px;font-size:.92rem;"><b>Why?</b> Quote the sentence. Say what is wrong with it, or what the better one got right. This is the part that becomes rules.</p>
+    <textarea id="tell" placeholder="e.g. &quot;...and hearing your thoughts thus far&quot; is a comma list where one item carries two ideas. I would have written..."></textarea>
+    <div style="margin-top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <button class="go" id="next" disabled onclick="next()">${idx===ITEMS.length-1?'Finish':'Next pair'}</button>
+      <span class="hint" id="nag">Pick a score and write a comment to continue.</span>
+    </div>`;
+  document.getElementById('tell').addEventListener('input',gate);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function gate(){
+  const ok=choice && document.getElementById('tell').value.trim().length>=15;
+  document.getElementById('next').disabled=!ok;
+  document.getElementById('nag').style.visibility=ok?'hidden':'visible';
+}
+function pick(code){
+  choice=code;
+  PREFS.forEach(p=>document.getElementById('p'+p[0]).classList.toggle('sel',p[0]===code));
+  gate();
+}
+function next(){
+  const it=ITEMS[idx];
+  answers.push({id:it.id,label:it.label,pref:choice,mineWas:it.real,comment:document.getElementById('tell').value.trim()});
+  idx++;
+  if(idx<ITEMS.length) renderItem(); else finish();
+}
+
+function finish(){
+  let own=0,draft=0,tie=0,net=0;
+  answers.forEach(a=>{
+    if(a.pref==='T'){ a.outcome='toss-up'; tie++; return; }
+    const side=a.pref[0], strength=+a.pref[1];
+    const preferredMine=(side===a.mineWas);
+    a.outcome=(preferredMine?'preferred mine':'preferred the draft')+(strength===2?' (clearly)':' (slightly)');
+    if(preferredMine){ own++; net-=strength; } else { draft++; net+=strength; }
+  });
+  const n=answers.length;
+  const payload=JSON.stringify({
+    mode:'preference', pairs:n, preferredMine:own, tossUp:tie, preferredDraft:draft, netScore:net, answers
+  },null,2);
+  let verdict;
+  if(draft+tie>=own) verdict='The drafts hold their own against your real writing or beat it. The voice guide is earning its keep. Your comments are now the polish list.';
+  else if(draft>0) verdict='Mixed. The drafts win some of the time. Your comments on the pairs they lost are the priority fix list for the next pass.';
+  else verdict='You preferred your own writing on every pair that was not a toss-up. That is normal on a first pass. Your comments are the list of what the guide is still missing, and the repeated ones come first.';
+
+  stage.innerHTML=`
+    <h3 style="margin-top:0">Results</h3>
+    <div class="score">Preferred mine: <b>${own}</b> &nbsp;&middot;&nbsp; Toss-up: <b>${tie}</b> &nbsp;&middot;&nbsp; Preferred the draft: <b>${draft}</b>
+      <span style="color:var(--muted);font-size:.85rem">(net ${net>0?'+':''}${net}, positive favors the drafts)</span></div>
+    <p style="font-size:.95rem">${verdict}</p>
+    <div id="breakdown"></div>
+    <p style="margin-top:20px;font-size:.93rem"><b>Next:</b> copy the block below and paste it back into your assistant with the rule-extraction prompt.</p>
+    <textarea class="mono" style="min-height:170px" id="out"></textarea>
+    <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="go" onclick="copyOut(this)">Copy results</button>
+      <button class="ghost" onclick="dl()">Download JSON</button>
+      <button class="ghost" onclick="loader()">Start over</button>
+    </div>`;
+  document.getElementById('out').value=payload;
+  const bd=document.getElementById('breakdown');
+  answers.forEach(a=>{
+    const cls=a.outcome==='toss-up'?'tie':(a.outcome.startsWith('preferred mine')?'own':'draft');
+    const d=document.createElement('div'); d.className='result-item';
+    d.innerHTML=`<span class="${cls}">${esc(a.outcome)}</span> &nbsp;&middot;&nbsp; #${esc(a.id)} ${esc(a.label)} &nbsp;&middot;&nbsp; <span style="color:var(--muted)">yours was ${a.mineWas}</span>`
+      +(a.comment?`<div style="color:var(--muted);margin-top:4px">${esc(a.comment)}</div>`:'');
+    bd.appendChild(d);
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function copyOut(btn){
+  navigator.clipboard.writeText(document.getElementById('out').value).then(()=>{
+    const o=btn.textContent; btn.textContent='Copied'; setTimeout(()=>btn.textContent=o,1400);
+  });
+}
+function dl(){
+  const b=new Blob([document.getElementById('out').value],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(b);
+  a.download='voice-test-results.json'; a.click();
+}
+
+loader();
+</script></body></html>
