@@ -28,15 +28,33 @@ Two or three passes is normal. The first guide is always wrong in ways nobody co
 
 **Aim for you on your best day.** Your real writing contains habits you do not like. A guide that reproduces them faithfully has locked in your bad days along with your good ones. The audit is asked to flag habits you might not defend, and you decide which ones to keep.
 
-## Where the numbers came from
+## Where this came from
 
-The method came out of a run on professional email: 14 pairs, one judge, first pass.
+I had been building an AI assistant to draft in my voice, and I was tired of rounds of "that doesn't sound like me." So I treated my voice like a product problem. Audit the ground truth, build a rubric, test blind, turn the edits into rules. It is the same loop I would run on any AI feature. My inbox was just the cheapest place to prove it.
 
-The AI drafts won 8, the original emails won 2, and 4 were toss-ups.
+The first run was professional email: 14 pairs, one judge, first pass. I judged a blind writing contest between me and my AI, both of us writing as me.
 
-That result is directional and not much more. One judge is not a stable measuring instrument, 14 pairs is a small sample, and the drafts had an advantage: the briefs were written by someone who had already read the originals, so the drafts knew which facts mattered. Real drafting does not get that.
+**I took second.** The AI drafts won 8, my own sent emails won 2, and 4 were toss-ups.
 
-The useful part was never the score. It was the comments. Several of the sharpest criticisms in that run landed on sentences from the real emails, including one the judge rewrote as an example of what not to do before learning he had written it himself two days earlier. Those comments became the rules that the audit alone had missed.
+I wrote that up [in a LinkedIn post](https://www.linkedin.com/posts/claywaters_this-week-i-judged-a-blind-writing-contest-share-7493377684832620544-iPVb/), and enough people asked me for the method that it became this repo.
+
+### The moment that made the method
+
+Partway through grading, I tore into one email's sentence structure. "This structure looks terrible, please don't do this again," I wrote, and I supplied the fix myself.
+
+Then Claude told me it was my sentence, from an email I had sent two days earlier. I did not believe it, so I opened Gmail and checked.
+
+That is the entire argument for grading blind. I could never have found that habit by reading my own writing, because I had already written it, read it, and hit send on it. Only the blind pairing made it visible. The rule that came out of it, that comma lists must be parallel with one idea per item, now fires on every draft.
+
+### What the numbers are worth
+
+Less than they look like, and it is worth saying so plainly:
+
+- **One judge.** My preferences on a Tuesday afternoon are not a stable measuring instrument.
+- **Small sample.** 14 pairs is 14 pairs. A three-point swing is noise.
+- **The drafts had hindsight.** The briefs were written by someone who had already read the originals, so the drafts knew which facts mattered. Real drafting does not get that.
+
+The score was never the useful output. The comments were. Several of the sharpest criticisms in that run landed on my own sentences, and those comments became the rules the audit alone had missed.
 
 ## Install
 
