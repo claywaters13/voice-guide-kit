@@ -64,7 +64,11 @@ Load the reference for the step you are on, not all of them at once.
 
 ## The grading tool
 
-`assets/voice-test.html` runs the blind preference test in a browser. Open it locally or use the hosted copy.
+The blind preference test runs in a browser. Use the hosted copy, which needs no download:
+
+**https://claywaters13.github.io/voice-guide-kit/assets/voice-test.html**
+
+Or open `assets/voice-test.html` locally. Both are the same file and both run entirely in the browser.
 
 You produce `pairs.json`, they open the tool and paste it in, they take the test, and they paste the results back to you. The tool shuffles which side is A and which is B for every pair, so neither of you can leak the answer key.
 

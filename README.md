@@ -50,7 +50,13 @@ Then ask your assistant to help you write something in your voice, or invoke it 
 
 ### Without installing anything
 
-Read this file and `references/`, and run the prompts by hand in whatever tool you use. The method does not depend on Claude. The only piece you need either way is the grading tool, which is a single HTML file that runs in your browser.
+Read this file and `references/`, and run the prompts by hand in whatever tool you use. The method does not depend on Claude.
+
+The only piece you need either way is the grading tool, and it is already hosted:
+
+**[Open the blind preference test](https://claywaters13.github.io/voice-guide-kit/assets/voice-test.html)**
+
+It runs entirely in your browser. Nothing you paste into it is uploaded or stored.
 
 ## What is in here
 
